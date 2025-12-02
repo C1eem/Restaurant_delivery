@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Менеджер — заказы{% endblock %}
+
+{% block content %}
+<h1>Управление заказами</h1>
+
+<section class="manager-layout">
+    <div class="manager-column">
+        <h2>Заказы</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Адрес</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+                <th>Курьер</th>
+                <th>Назначить</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr data-order-id="{{ order.id }}">
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user_id }}</td>
+                    <td>{{ order.delivery_address }}</td>
+                    <td>{{ "%.2f"|format(order.total_amount) }} ₽</td>
+                    <td>{{ order.status.value if order.status else "" }}</td>
+                    <td>{{ order.worker_id or "—" }}</td>
+                    <td>
+                        <form method="post" action="/manager/assign">
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <select name="courier_id" required>
+                                <option value="">Выберите курьера</option>
+                                {% for courier in couriers %}
+                                    <option value="{{ courier.id }}"
+                                        {% if order.worker_id == courier.id %}selected{% endif %}>
+                                        {{ courier.full_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-small btn-primary">OK</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="manager-column">
+        <h2>Курьеры в системе</h2>
+        <p class="muted">
+            Список курьеров берётся из таблицы работников с ролью «курьер».
+            Поле «в сети» в БД пока не предусмотрено, поэтому отображаем всех курьеров.
+        </p>
+        <ul class="list">
+            {% for courier in couriers %}
+                <li data-courier-id="{{ courier.id }}">
+                    <strong>{{ courier.full_name }}</strong>
+                    <span class="muted">({{ courier.login }})</span>
+                </li>
+            {% endfor %}
+        </ul>
+        <p class="muted small">
+            Назначение курьера на заказ можно реализовать через существующий API обновления заказа `/orders/{id}` (поле worker_id).
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+

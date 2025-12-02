@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Курьер — назначенные заказы{% endblock %}
+
+{% block content %}
+<h1>Заказы курьера</h1>
+
+{% if not courier %}
+    <p class="muted">
+        Курьер не указан. Передайте идентификатор курьера в параметре <code>?courier_id=ID</code>,
+        либо добавьте полноценную аутентификацию по JWT/сессиям.
+    </p>
+{% else %}
+    <p>Курьер: <strong>{{ courier.full_name }}</strong> ({{ courier.login }})</p>
+
+    {% if orders %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Адрес доставки</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.delivery_address }}</td>
+                    <td>{{ "%.2f"|format(order.total_amount) }} ₽</td>
+                    <td>{{ order.status.value if order.status else "" }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="muted">Назначенных заказов нет.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+

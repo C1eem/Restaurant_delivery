@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Администратор — меню{% endblock %}
+
+{% block content %}
+<h1>Управление меню</h1>
+<p class="muted">Список блюд загружается из базы данных PostgreSQL. Здесь администратор может редактировать меню.</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Цена</th>
+        <th>Описание</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for dish in dishes %}
+        <tr data-dish-id="{{ dish.id }}">
+            <td>{{ dish.id }}</td>
+            <td>{{ dish.name }}</td>
+            <td>{{ "%.2f"|format(dish.price) }} ₽</td>
+            <td>{{ dish.description or "" }}</td>
+            <td>
+                <form method="post" action="/admin/dish/{{ dish.id }}/update" class="inline-form">
+                    <input type="text" name="name" placeholder="Название" value="{{ dish.name }}">
+                    <input type="number" step="0.01" name="price" placeholder="Цена" value="{{ dish.price }}">
+                    <input type="text" name="description" placeholder="Описание" value="{{ dish.description or '' }}">
+                    <button type="submit" class="btn btn-small btn-primary">Сохранить</button>
+                </form>
+                <form method="post" action="/admin/dish/{{ dish.id }}/delete" class="inline-form">
+                    <button type="submit" class="btn btn-small btn-danger">Удалить</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+

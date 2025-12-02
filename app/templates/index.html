@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Меню ресторана{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <section class="dishes-list">
+        <h1>Меню</h1>
+
+        {% if registered %}
+            <p class="notification success">
+                Регистрация прошла успешно! Теперь вы можете оформить заказ.
+            </p>
+        {% endif %}
+
+        <div class="cards">
+            {% for dish in dishes %}
+                <div class="card" data-dish-id="{{ dish.id }}"
+                     data-dish-name="{{ dish.name }}"
+                     data-dish-price="{{ dish.price }}"
+                     data-dish-weight="{{ dish.weight }}"
+                     data-dish-calories="{{ dish.calories }}"
+                     data-dish-description="{{ dish.description or '' }}">
+                    <div class="card-header">
+                        <h2>{{ dish.name }}</h2>
+                        <span class="price">{{ "%.2f"|format(dish.price) }} ₽</span>
+                    </div>
+                    <p class="description">
+                        {{ (dish.description or "Описание будет добавлено позже")[:80] }}{% if dish.description and dish.description|length > 80 %}...{% endif %}
+                    </p>
+                    <button class="btn btn-small btn-primary add-to-cart">В корзину</button>
+                    <button class="btn btn-small btn-secondary view-details">Подробнее</button>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <aside class="cart">
+        <h2>Ваш заказ</h2>
+        <div id="cartItems" class="cart-items">
+            <p class="muted">Корзина пуста. Добавьте блюда из меню.</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                Итого: <span id="cartTotal">0.00</span> ₽
+            </div>
+            <button id="checkoutButton" class="btn btn-primary" disabled>Оформить заказ</button>
+        </div>
+    </aside>
+</div>
+
+<!-- Модальное окно с подробной информацией о блюде -->
+<div id="dishModal" class="modal hidden">
+    <div class="modal-content">
+        <span id="closeDishModal" class="close">&times;</span>
+        <h2 id="dishModalTitle"></h2>
+        <p id="dishModalDescription"></p>
+        <ul class="dish-details">
+            <li><strong>Цена:</strong> <span id="dishModalPrice"></span> ₽</li>
+            <li><strong>Вес:</strong> <span id="dishModalWeight"></span> г</li>
+            <li><strong>Калорийность:</strong> <span id="dishModalCalories"></span> ккал</li>
+        </ul>
+        <button id="dishModalAddToCart" class="btn btn-primary">Добавить в заказ</button>
+    </div>
+</div>
+{% endblock %}
+
+

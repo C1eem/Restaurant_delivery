@@ -1,0 +1,10 @@
+fastapi~=0.104.1
+uvicorn
+jinja2
+sqlalchemy~=2.0.23
+alembic~=1.12.1
+psycopg2-binary
+
+python-dotenv~=1.0.0
+passlib~=1.7.4
+pydantic~=2.12.4

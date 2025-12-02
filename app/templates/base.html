@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Restaurant Delivery{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="header">
+    <div class="logo">
+        <span class="logo-link">Restaurant Delivery</span>
+    </div>
+    <div class="header-right">
+        <button id="loginButton" class="btn btn-outline">Войти / Регистрация</button>
+    </div>
+</header>
+
+<main class="main">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Модальное окно логина / регистрации -->
+<div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+        <span id="closeLoginModal" class="close">&times;</span>
+        <h2>Вход / Регистрация</h2>
+        <div class="tabs">
+            <button class="tab-button active" data-tab="user">Пользователь</button>
+            <button class="tab-button" data-tab="worker">Сотрудник</button>
+            <button class="tab-button" data-tab="register">Регистрация</button>
+        </div>
+
+        <div id="userTab" class="tab active">
+            <form method="post" action="/login/user">
+                <label>Логин</label>
+                <input type="text" name="login" required>
+                <label>Пароль</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="btn">Войти как пользователь</button>
+            </form>
+        </div>
+
+        <div id="workerTab" class="tab">
+            <form method="post" action="/login/worker">
+                <label>Логин</label>
+                <input type="text" name="login" required>
+                <label>Пароль</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="btn">Войти как сотрудник</button>
+            </form>
+        </div>
+
+        <div id="registerTab" class="tab">
+            <form method="post" action="/register/user">
+                <label>Логин</label>
+                <input type="text" name="login" required>
+                <label>Пароль</label>
+                <input type="password" name="password" required>
+                <label>ФИО</label>
+                <input type="text" name="full_name" required>
+                <label>Телефон</label>
+                <input type="text" name="phone_number" required>
+                <label>Email</label>
+                <input type="email" name="email" required>
+                <button type="submit" class="btn">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/static/main.js"></script>
+</body>
+</html>
+
+
