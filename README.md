@@ -9,11 +9,20 @@
 
 ## Гайд по alembic
 - ```bash
-    alembic revision --autoupgrade # создать новую версию бд, которую хотим загрузить в реальную бд
+    alembic revision --autogenerate # создать новую версию бд, которую хотим загрузить в реальную бд
   ```
 - ```bash
     alembic upgrade head # загрузить новую версию в рельную бд
   ```
+  
+### Если надо удалить бд и подключить все с нуля через alembic
+- Удаляешь бд (например через pgAdmin)
+- Удаляешь все содержимое папки alembic/versions
+- ```bash
+    alembic downgrade base
+    alembic revision --autogenerate -m "Comment"
+    alembic upgrade head
+    ```
 
 ## Гайд по коммитам на гит
 - ```bash

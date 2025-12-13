@@ -13,7 +13,7 @@ from app.models.ingredient import Ingredient
 from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.user import User
-from app.models.worker import Worker, WorkerRole
+# from app.models.worker import Worker, WorkerRole
 from app.core.security import hash_password
 
 
@@ -65,7 +65,6 @@ def populate_test_data():
         db.query(Dish).delete()
         db.query(Ingredient).delete()
         db.query(User).delete()
-        db.query(Worker).delete()
         db.flush()
 
         # Создание ингредиентов
@@ -129,33 +128,13 @@ def populate_test_data():
         db.add_all(users)
         db.flush()  # Получаем ID для пользователей
 
-        # Создание работников
-        workers = [
-            Worker(
-                login="worker1",
-                password_hash=hash_password("worker1"),
-                full_name="Работник 1",
-                phone_number=1234567890,
-                email="worker1@example.com",
-                role=WorkerRole.admin,
-            ),
-            Worker(
-                login="worker2",
-                password_hash=hash_password("worker2"),
-                full_name="Работник 2",
-                phone_number=9876543210,
-                email="worker2@example.com",
-                role=WorkerRole.courier,
-            ),
-        ]
-        db.add_all(workers)
-        db.flush()  # Получаем ID для работников
+
 
         # Создание заказов
         orders = [
             Order(
                 delivery_address="ул. Центральная, д. 1",
-                worker_id=workers[0].id,
+                worker_id=users[1].id,
                 total_amount=20.98,
                 user_id=users[0].id,
             ),

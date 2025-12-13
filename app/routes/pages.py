@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import timedelta
+import traceback
 
 from app.dependencies import get_db, get_current_user_from_cookie
 from app.crud import dish as dish_crud
@@ -235,7 +236,6 @@ def register(
         return response
     except Exception as e:
         # Логируем ошибку для отладки
-        import traceback
         print(f"Ошибка при регистрации: {e}")
         print(traceback.format_exc())
         return templates.TemplateResponse(

@@ -1,8 +1,8 @@
-"""empty message
+"""Initial migration
 
-Revision ID: d7f39b72969f
+Revision ID: 1e981a5c9262
 Revises: 
-Create Date: 2025-12-06 12:00:59.159113
+Create Date: 2025-12-13 17:54:23.639007
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd7f39b72969f'
+revision: str = '1e981a5c9262'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -49,18 +49,6 @@ def upgrade() -> None:
     sa.UniqueConstraint('login'),
     sa.UniqueConstraint('phone_number')
     )
-    op.create_table('workers',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('login', sa.String(), nullable=False),
-    sa.Column('password_hash', sa.String(), nullable=False),
-    sa.Column('full_name', sa.String(), nullable=False),
-    sa.Column('phone_number', sa.String(), nullable=False),
-    sa.Column('email', sa.String(), nullable=False),
-    sa.Column('role', sa.Enum('admin', 'client', 'courier', 'manager', name='workerrole'), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('phone_number')
-    )
     op.create_table('dish_ingredients',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('dish_id', sa.Integer(), nullable=False),
@@ -80,7 +68,7 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['courier_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['worker_id'], ['workers.id'], ),
+    sa.ForeignKeyConstraint(['worker_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('order_items',
@@ -100,7 +88,6 @@ def downgrade() -> None:
     op.drop_table('order_items')
     op.drop_table('orders')
     op.drop_table('dish_ingredients')
-    op.drop_table('workers')
     op.drop_table('users')
     op.drop_table('ingredients')
     op.drop_table('dishes')

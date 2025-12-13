@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from app.models.worker import Worker, WorkerRole
+#from app.models.worker import Worker, WorkerRole
 from app.schemas.worker import WorkerCreate, WorkerUpdate
 from app.core.security import hash_password, verify_password
 
