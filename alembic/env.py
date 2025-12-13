@@ -17,7 +17,7 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 from app.models.base import Base
-from app.models import dish, order, order_item, user, ingredient, dish_ingredient
+from app.models import dish, order, order_item, user, ingredient, dish_ingredient, dish_in_menu
 target_metadata = Base.metadata
 # target_metadata = None
 

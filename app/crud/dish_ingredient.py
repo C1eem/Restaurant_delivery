@@ -1,7 +1,6 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 from app.models.dish_ingredient import DishIngredient
 from app.schemas.dish_ingredient import DishIngredientCreate, DishIngredientUpdate
 

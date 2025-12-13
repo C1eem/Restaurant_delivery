@@ -14,6 +14,8 @@ from app.crud import user as user_crud
 from app.crud import order as order_crud
 from app.crud import order_item as order_item_crud
 from app.crud import ingredient as ingredient_crud
+from app.models.dish import Dish
+from app.models.dish_in_menu import DishInMenu
 from app.models.user import User, UserRole
 from app.schemas.user import UserCreate, UserUpdate
 from app.schemas.order import OrderUpdate, OrderCreate
@@ -67,13 +69,47 @@ def _get_current_user_id(request: Request) -> Optional[int]:
 
 @router.get("/", response_class=HTMLResponse)
 def index(
-    request: Request,
-    registered: bool = False,
-    db: Session = Depends(get_db),
+        request: Request,
+        registered: bool = False,
+        db: Session = Depends(get_db),
 ):
     """Главная страница с меню."""
     try:
-        dishes = dish_crud.get_all_dishes(db)
+        from sqlalchemy import func
+
+        # Подзапрос для получения последней/актуальной записи в меню для каждого блюда
+        subquery = (
+            db.query(
+                DishInMenu.dish_id,
+                func.max(DishInMenu.id).label('latest_menu_id')
+            )
+            .group_by(DishInMenu.dish_id)
+            .subquery()
+        )
+
+        # Получаем блюда с их текущими ценами из меню
+        dishes_with_prices = (
+            db.query(Dish, DishInMenu.price)
+            .join(DishInMenu, Dish.id == DishInMenu.dish_id)
+            .join(subquery,
+                  (DishInMenu.dish_id == subquery.c.dish_id) &
+                  (DishInMenu.id == subquery.c.latest_menu_id))
+            .all()
+        )
+
+        # Преобразуем в список словарей для шаблона
+        dishes = []
+        for dish_obj, price in dishes_with_prices:
+            dish_dict = {
+                'id': dish_obj.id,
+                'name': dish_obj.name,
+                'weight': dish_obj.weight,
+                'calories': dish_obj.calories,
+                'description': dish_obj.description,
+                'price': price  # Добавляем цену из dishes_in_menu
+            }
+            dishes.append(dish_dict)
+
         current_user = _get_current_user(request, db)
         return templates.TemplateResponse(
             "index.html",

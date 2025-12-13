@@ -6,9 +6,11 @@ class OrderItem(Base):
 
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
-    dish_id = Column(Integer, ForeignKey("dishes.id"), nullable=False)
+    dish_in_menu_id = Column(Integer, ForeignKey("dishes_in_menu.id"), nullable=False)
     quantity = Column(Integer, nullable=False, default=1)
 
     def __repr__(self):
         return (f"<OrderItem(id={self.id}, "
-                f"order_id={self.order_id}, dish_id={self.dish_id}, quantity={self.quantity})>")
+                f"order_id={self.order_id}, "
+                f"dish_in_menu_id={self.dish_in_menu_id}"
+                f"quantity={self.quantity})>")

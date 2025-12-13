@@ -5,7 +5,6 @@ from fastapi.staticfiles import StaticFiles
 # Импортируем все роуты
 from app.routes import (
     users,
-    workers,
     dishes,
     ingredients,
     dish_ingredients,
@@ -36,7 +35,6 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Подключаем все роуты
 app.include_router(pages.router)        # HTML-страницы
 app.include_router(users.router)        # API пользователей
-app.include_router(workers.router)      # API работников
 app.include_router(dishes.router)       # API блюд
 app.include_router(ingredients.router)  # API ингредиентов
 app.include_router(dish_ingredients.router)
