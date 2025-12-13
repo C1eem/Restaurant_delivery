@@ -44,6 +44,29 @@ function setupLoginModal() {
             if (activeTab) activeTab.classList.add("active");
         });
     });
+
+    // Валидация формы регистрации
+    const registerForm = document.getElementById("registerForm");
+    if (registerForm) {
+        registerForm.addEventListener("submit", (e) => {
+            const requiredFields = registerForm.querySelectorAll("[required]");
+            let isValid = true;
+            
+            requiredFields.forEach((field) => {
+                if (!field.value || field.value.trim() === "") {
+                    isValid = false;
+                    field.style.borderColor = "red";
+                } else {
+                    field.style.borderColor = "";
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert("Пожалуйста, заполните все обязательные поля!");
+            }
+        });
+    }
 }
 
 function setupDishDetailsModal() {
@@ -115,11 +138,26 @@ function setupCart() {
         checkoutButton.addEventListener("click", async () => {
             if (!cart.length) return;
 
+            // Проверяем адрес доставки
+            let deliveryAddress = null;
+            const userAddress = document.getElementById("userDeliveryAddress");
+            if (userAddress && userAddress.value) {
+                deliveryAddress = userAddress.value;
+            } else {
+                // Запрашиваем адрес у пользователя
+                deliveryAddress = prompt("Укажите адрес доставки:");
+                if (!deliveryAddress || deliveryAddress.trim() === "") {
+                    alert("Адрес доставки обязателен для оформления заказа!");
+                    return;
+                }
+            }
+
             const payload = {
                 items: cart.map((item) => ({
                     dish_id: item.id,
                     quantity: item.quantity,
                 })),
+                delivery_address: deliveryAddress,
             };
 
             try {
@@ -132,7 +170,13 @@ function setupCart() {
                 });
 
                 if (res.status === 401) {
-                    alert("Чтобы оформить заказ, войдите как пользователь.");
+                    alert("Чтобы оформить заказ, войдите в систему.");
+                    return;
+                }
+
+                if (res.status === 400) {
+                    const errorData = await res.json();
+                    alert(errorData.detail || "Не удалось оформить заказ. Проверьте данные.");
                     return;
                 }
 

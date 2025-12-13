@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет менеджера{% endblock %}
+
+{% block content %}
+<div class="account-container">
+    <div class="account-header">
+        <h1>Личный кабинет менеджера</h1>
+        <div class="account-actions">
+            <a href="/" class="btn btn-outline">Вернуться к меню</a>
+            <button onclick="showHelp()" class="btn btn-outline">Справка</button>
+        </div>
+    </div>
+
+    <div class="account-content">
+        <div class="account-section">
+        <h2>Управление заказами</h2>
+        <div class="search-box">
+            <input type="text" id="orderSearch" placeholder="Поиск по ID, адресу, статусу..." onkeyup="searchOrders()">
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Клиент</th>
+                    <th>Адрес доставки</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Курьер</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                {% for order in orders %}
+                <tr data-order-id="{{ order.id }}">
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user_id }}</td>
+                    <td>{{ order.delivery_address }}</td>
+                    <td>{{ "%.2f"|format(order.total_amount) }} ₽</td>
+                    <td>{{ order.status.value if order.status else "" }}</td>
+                    <td>
+                        {% if order.status.value != 'cancelled' and order.status.value != 'completed' %}
+                        <form method="post" action="/manager/assign" style="display: inline;">
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <select name="courier_id" required>
+                                <option value="">—</option>
+                                {% for courier in couriers %}
+                                <option value="{{ courier.id }}" {% if order.courier_id == courier.id %}selected{% endif %}>
+                                    {{ courier.full_name }} ({{ courier.login }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-small btn-primary">Назначить</button>
+                        </form>
+                        {% else %}
+                        <span class="muted small">Заказ {{ 'отменён' if order.status.value == 'cancelled' else 'завершён' }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.created_at }}</td>
+                    <td>
+                        {% if order.status.value != 'cancelled' and order.status.value != 'completed' %}
+                        <form method="post" action="/manager/cancel/{{ order.id }}" style="display: inline;">
+                            <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Отменить доставку?')">Отменить</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <div class="account-section">
+            <h2>Редактирование профиля</h2>
+            <form id="profileForm" onsubmit="updateProfile(event)">
+                <label>Логин</label>
+                <input type="text" value="{{ current_user.login }}" readonly>
+                <label>ФИО <span class="required">*</span></label>
+                <input type="text" name="full_name" value="{{ current_user.full_name }}" required>
+                <label>Email <span class="required">*</span></label>
+                <input type="email" name="email" value="{{ current_user.email }}" required>
+                <label>Телефон <span class="required">*</span></label>
+                <input type="text" name="phone_number" value="{{ current_user.phone_number }}" required>
+                <label>Адрес доставки</label>
+                <input type="text" name="delivery_address" value="{{ current_user.delivery_address or '' }}">
+                <label>Новый пароль (оставьте пустым, чтобы не менять)</label>
+                <input type="password" name="password">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            </form>
+            <div id="successMessage" class="success-message hidden"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно справки -->
+<div id="helpModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close" onclick="closeHelp()">&times;</span>
+        <h2>Справка по системе</h2>
+        <div class="help-content">
+            <h3>Функции менеджера:</h3>
+            <ul>
+                <li>Просмотр и поиск заказов</li>
+                <li>Назначение курьера на заказ</li>
+                <li>Отмена доставки</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+function showHelp() {
+    document.getElementById('helpModal').classList.remove('hidden');
+}
+
+function closeHelp() {
+    document.getElementById('helpModal').classList.add('hidden');
+}
+
+function searchOrders() {
+    const input = document.getElementById('orderSearch');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('#ordersTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+
+async function updateProfile(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    
+    submitButton.disabled = true;
+    submitButton.textContent = 'Сохранение...';
+    
+    try {
+        const response = await fetch('/account/profile/update', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showSuccessMessage('Профиль успешно обновлен!');
+            submitButton.textContent = originalText;
+        } else {
+            alert('Ошибка: ' + (data.message || 'Не удалось обновить профиль'));
+            submitButton.textContent = originalText;
+        }
+    } catch (error) {
+        alert('Ошибка при сохранении: ' + error.message);
+        submitButton.textContent = originalText;
+    } finally {
+        submitButton.disabled = false;
+    }
+}
+
+function showSuccessMessage(message) {
+    const successDiv = document.getElementById('successMessage');
+    successDiv.textContent = message;
+    successDiv.classList.remove('hidden');
+    successDiv.classList.add('show');
+    
+    setTimeout(() => {
+        successDiv.classList.remove('show');
+        setTimeout(() => {
+            successDiv.classList.add('hidden');
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}
+

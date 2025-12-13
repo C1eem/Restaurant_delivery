@@ -37,6 +37,10 @@
 
     <aside class="cart">
         <h2>Ваш заказ</h2>
+        {% if current_user and current_user.delivery_address %}
+        <input type="hidden" id="userDeliveryAddress" value="{{ current_user.delivery_address }}">
+        <p class="muted small">Адрес доставки: {{ current_user.delivery_address }}</p>
+        {% endif %}
         <div id="cartItems" class="cart-items">
             <p class="muted">Корзина пуста. Добавьте блюда из меню.</p>
         </div>

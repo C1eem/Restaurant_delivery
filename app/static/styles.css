@@ -156,32 +156,42 @@ body {
 
 .btn-primary {
     background: #2563eb;
-    color: #f9fafb;
+    color: #ffffff;
+    font-weight: 600;
+    border: 2px solid #2563eb;
 }
 
 .btn-primary:hover {
     background: #1d4ed8;
-    box-shadow: 0 2px 8px rgb(37 99 235 / 0.4);
+    border-color: #1d4ed8;
+    box-shadow: 0 4px 12px rgb(37 99 235 / 0.5);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
-    background: #e5e7eb;
-    color: #111827;
+    background: #6b7280;
+    color: #ffffff;
+    font-weight: 500;
+    border: 2px solid #6b7280;
 }
 
 .btn-secondary:hover {
-    background: #d1d5db;
+    background: #4b5563;
+    border-color: #4b5563;
+    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.4);
 }
 
 .btn-outline {
     background: transparent;
-    border: 1px solid #e5e7eb;
-    color: #f9fafb;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-weight: 500;
 }
 
 .btn-outline:hover {
-    background: #e5e7eb;
+    background: #ffffff;
     color: #111827;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .btn-small {
@@ -191,11 +201,16 @@ body {
 
 .btn-danger {
     background: #dc2626;
-    color: #f9fafb;
+    color: #ffffff;
+    font-weight: 600;
+    border: 2px solid #dc2626;
 }
 
 .btn-danger:hover {
     background: #b91c1c;
+    border-color: #b91c1c;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    transform: translateY(-1px);
 }
 
 .muted {
@@ -352,6 +367,146 @@ input {
     margin: 2px 0;
 }
 
+/* Стили для личных кабинетов */
+.account-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.account-header h1 {
+    margin: 0;
+}
+
+.account-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.account-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.account-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+}
+
+.account-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #111827;
+}
+
+.tabs-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: #2563eb;
+    background: #f3f4f6;
+}
+
+.tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Сообщение об успехе */
+.success-message {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #dcfce7;
+    color: #166534;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.success-message.hidden {
+    display: none;
+}
+
+.success-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.search-box {
+    margin-bottom: 16px;
+}
+
+.search-box input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.required {
+    color: #dc2626;
+}
+
+.user-info {
+    color: #ffffff;
+    margin-right: 12px;
+    font-size: 0.9rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 @media (max-width: 900px) {
     .layout {
         grid-template-columns: 1fr;
@@ -359,6 +514,17 @@ input {
 
     .manager-layout {
         grid-template-columns: 1fr;
+    }
+    
+    .account-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .account-actions {
+        width: 100%;
+        flex-wrap: wrap;
     }
 }
 

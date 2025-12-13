@@ -48,7 +48,7 @@ def check_and_create_database():
 # Создание таблиц
 def create_tables():
     print("Создание таблиц...")
-    Base.metadata.create_all(bind=engine)
+    #Base.metadata.create_all(bind=engine)
     print("Таблицы созданы.")
 
 

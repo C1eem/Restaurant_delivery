@@ -22,15 +22,15 @@ def get_orders_by_status(db: Session, status: OrderStatus):
     return db.query(Order).filter(Order.status == status).all()
 
 
-def get_orders_by_worker(db: Session, worker_id: int):
-    return db.query(Order).filter(Order.worker_id == worker_id).all()
+def get_orders_by_courier(db: Session, courier_id: int):
+    return db.query(Order).filter(Order.courier_id == courier_id).all()
 
 
 def create_order(db: Session, order: OrderCreate) -> Order:
     db_order = Order(
         delivery_address=order.delivery_address,
         user_id=order.user_id,
-        worker_id=order.worker_id,
+        courier_id=order.courier_id,
         total_amount=order.total_amount,
         status=order.status,
         created_at=datetime.utcnow()

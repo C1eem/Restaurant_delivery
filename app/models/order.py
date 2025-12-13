@@ -22,12 +22,13 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True)
     delivery_address = Column(String, nullable=False)
-    worker_id = Column(Integer, ForeignKey("workers.id"))
+    courier_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Курьер, назначенный на заказ
     created_at = Column(DateTime, default=datetime.utcnow())
+    worker_id = Column(Integer, ForeignKey('workers.id'), nullable=True)
     total_amount = Column(Float, nullable=False)
     status = Column(Enum(OrderStatus), nullable=False, default=OrderStatus.pending)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Клиент, сделавший заказ
 
     def __repr__(self):
-        return (f"<Order(id={self.id}, user_id={self.user_id}, worker_id={self.worker_id},"
+        return (f"<Order(id={self.id}, user_id={self.user_id}, courier_id={self.courier_id},"
                 f"created_at={self.created_at}, total_amount={self.total_amount}, status='{self.status}')>")

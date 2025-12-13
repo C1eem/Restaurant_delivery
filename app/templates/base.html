@@ -8,10 +8,33 @@
 <body>
 <header class="header">
     <div class="logo">
-        <span class="logo-link">Restaurant Delivery</span>
+        <a href="/" class="logo-link">Restaurant Delivery</a>
     </div>
     <div class="header-right">
-        <button id="loginButton" class="btn btn-outline">Войти / Регистрация</button>
+        {% if current_user %}
+            <span class="user-info">
+                <strong>{{ current_user.login }}</strong> (
+                {% if current_user.role.value == 'client' %}Клиент
+                {% elif current_user.role.value == 'manager' %}Менеджер
+                {% elif current_user.role.value == 'courier' %}Курьер
+                {% elif current_user.role.value == 'admin' %}Администратор
+                {% else %}{{ current_user.role.value }}{% endif %})
+            </span>
+            {% if current_user.role.value == 'client' %}
+                <a href="/account/client" class="btn btn-outline">Личный кабинет</a>
+            {% elif current_user.role.value == 'manager' %}
+                <a href="/account/manager" class="btn btn-outline">Личный кабинет</a>
+            {% elif current_user.role.value == 'courier' %}
+                <a href="/account/courier" class="btn btn-outline">Личный кабинет</a>
+            {% elif current_user.role.value == 'admin' %}
+                <a href="/account/admin" class="btn btn-outline">Личный кабинет</a>
+            {% endif %}
+            <form method="post" action="/logout" style="display: inline;">
+                <button type="submit" class="btn btn-outline">Выйти</button>
+            </form>
+        {% else %}
+            <button id="loginButton" class="btn btn-outline">Войти / Регистрация</button>
+        {% endif %}
     </div>
 </header>
 
@@ -24,44 +47,38 @@
     <div class="modal-content">
         <span id="closeLoginModal" class="close">&times;</span>
         <h2>Вход / Регистрация</h2>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
         <div class="tabs">
-            <button class="tab-button active" data-tab="user">Пользователь</button>
-            <button class="tab-button" data-tab="worker">Сотрудник</button>
+            <button class="tab-button active" data-tab="login">Вход</button>
             <button class="tab-button" data-tab="register">Регистрация</button>
         </div>
 
-        <div id="userTab" class="tab active">
-            <form method="post" action="/login/user">
-                <label>Логин</label>
+        <div id="loginTab" class="tab active">
+            <form method="post" action="/login" id="loginForm">
+                <label>Логин <span class="required">*</span></label>
                 <input type="text" name="login" required>
-                <label>Пароль</label>
+                <label>Пароль <span class="required">*</span></label>
                 <input type="password" name="password" required>
-                <button type="submit" class="btn">Войти как пользователь</button>
-            </form>
-        </div>
-
-        <div id="workerTab" class="tab">
-            <form method="post" action="/login/worker">
-                <label>Логин</label>
-                <input type="text" name="login" required>
-                <label>Пароль</label>
-                <input type="password" name="password" required>
-                <button type="submit" class="btn">Войти как сотрудник</button>
+                <button type="submit" class="btn">Войти</button>
             </form>
         </div>
 
         <div id="registerTab" class="tab">
-            <form method="post" action="/register/user">
-                <label>Логин</label>
+            <form method="post" action="/register" id="registerForm">
+                <label>Логин <span class="required">*</span></label>
                 <input type="text" name="login" required>
-                <label>Пароль</label>
+                <label>Пароль <span class="required">*</span></label>
                 <input type="password" name="password" required>
-                <label>ФИО</label>
+                <label>ФИО <span class="required">*</span></label>
                 <input type="text" name="full_name" required>
-                <label>Телефон</label>
+                <label>Телефон <span class="required">*</span></label>
                 <input type="text" name="phone_number" required>
-                <label>Email</label>
+                <label>Email <span class="required">*</span></label>
                 <input type="email" name="email" required>
+                <label>Адрес доставки</label>
+                <input type="text" name="delivery_address">
                 <button type="submit" class="btn">Зарегистрироваться</button>
             </form>
         </div>

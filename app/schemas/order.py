@@ -17,14 +17,14 @@ class OrderStatus(str, enum.Enum):
 class OrderCreate(BaseModel):
     delivery_address: str
     user_id: int
-    worker_id: Optional[int] = None
+    courier_id: Optional[int] = None
     total_amount: float
     status: OrderStatus = OrderStatus.pending
 
 
 class OrderUpdate(BaseModel):
     delivery_address: Optional[str] = None
-    worker_id: Optional[int] = None
+    courier_id: Optional[int] = None
     total_amount: Optional[float] = None
     status: Optional[OrderStatus] = None
 
@@ -33,7 +33,7 @@ class OrderResponse(BaseModel):
     id: int
     delivery_address: str
     user_id: int
-    worker_id: Optional[int] = None
+    courier_id: Optional[int] = None
     created_at: datetime
     total_amount: float
     status: OrderStatus

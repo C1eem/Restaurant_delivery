@@ -1,0 +1,513 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет администратора{% endblock %}
+
+{% block content %}
+<div class="account-container">
+    <div class="account-header">
+        <h1>Личный кабинет администратора</h1>
+        <div class="account-actions">
+            <a href="/" class="btn btn-outline">Вернуться к меню</a>
+            <button onclick="showHelp()" class="btn btn-outline">Справка</button>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="showTab('dishes')">Блюда</button>
+        <button class="tab-btn" onclick="showTab('users')">Пользователи</button>
+        <button class="tab-btn" onclick="showTab('orders')">Заказы</button>
+        <button class="tab-btn" onclick="showTab('ingredients')">Ингредиенты</button>
+        <button class="tab-btn" onclick="showTab('profile')">Профиль</button>
+    </div>
+
+    <!-- Вкладка Блюда -->
+    <div id="dishes-tab" class="tab-content active">
+        <h2>Управление блюдами</h2>
+        <button onclick="showAddDishForm()" class="btn btn-primary">Добавить блюдо</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Цена</th>
+                    <th>Вес</th>
+                    <th>Калории</th>
+                    <th>Описание</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dish in dishes %}
+                <tr data-dish-id="{{ dish.id }}">
+                    <td>{{ dish.id }}</td>
+                    <td><input type="text" value="{{ dish.name }}" data-field="name"></td>
+                    <td><input type="number" step="0.01" value="{{ dish.price }}" data-field="price"></td>
+                    <td><input type="number" step="0.01" value="{{ dish.weight }}" data-field="weight"></td>
+                    <td><input type="number" step="0.01" value="{{ dish.calories }}" data-field="calories"></td>
+                    <td><input type="text" value="{{ dish.description or '' }}" data-field="description"></td>
+                    <td>
+                        <button onclick="updateDish({{ dish.id }})" class="btn btn-small btn-primary">Сохранить</button>
+                        <button onclick="deleteDish({{ dish.id }})" class="btn btn-small btn-danger">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальное окно добавления блюда -->
+    <div id="addDishModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddDishForm()">&times;</span>
+            <h2>Добавить блюдо</h2>
+            <form id="addDishForm" onsubmit="submitAddDish(event)">
+                <label>Название <span class="required">*</span></label>
+                <input type="text" name="name" required>
+
+                <label>Цена <span class="required">*</span></label>
+                <input type="number" step="0.01" name="price" required>
+
+                <label>Вес (г) <span class="required">*</span></label>
+                <input type="number" step="0.01" name="weight" required>
+
+                <label>Калории <span class="required">*</span></label>
+                <input type="number" step="0.01" name="calories" required>
+
+                <label>Описание</label>
+                <input type="text" name="description">
+
+                <label>Ингредиенты</label>
+                <div class="ingredients-list">
+                    {% if ingredients %}
+                        {% for ingredient in ingredients %}
+                        <label class="ingredient-item">
+                            <input type="checkbox" name="ingredient_ids" value="{{ ingredient.id }}">
+                            {{ ingredient.name }}
+                        </label>
+                        {% endfor %}
+                    {% else %}
+                        <p class="muted small">Ингредиенты пока не добавлены. Добавьте их во вкладке «Ингредиенты».</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Создать блюдо</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Вкладка Пользователи -->
+    <div id="users-tab" class="tab-content">
+        <h2>Управление пользователями</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Логин</th>
+                    <th>ФИО</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                    <th>Роль</th>
+                    <th>Адрес</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr data-user-id="{{ user.id }}">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.login }}</td>
+                    <td><input type="text" value="{{ user.full_name }}" data-field="full_name"></td>
+                    <td><input type="email" value="{{ user.email }}" data-field="email"></td>
+                    <td><input type="text" value="{{ user.phone_number }}" data-field="phone_number"></td>
+                    <td>
+                        <select data-field="role">
+                            <option value="client" {% if user.role.value == 'client' %}selected{% endif %}>Клиент</option>
+                            <option value="manager" {% if user.role.value == 'manager' %}selected{% endif %}>Менеджер</option>
+                            <option value="courier" {% if user.role.value == 'courier' %}selected{% endif %}>Курьер</option>
+                            <option value="admin" {% if user.role.value == 'admin' %}selected{% endif %}>Администратор</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="{{ user.delivery_address or '' }}" data-field="delivery_address"></td>
+                    <td>
+                        <button onclick="updateUser({{ user.id }})" class="btn btn-small btn-primary">Сохранить</button>
+                        <button onclick="deleteUser({{ user.id }})" class="btn btn-small btn-danger">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Вкладка Заказы -->
+    <div id="orders-tab" class="tab-content">
+        <h2>Управление заказами</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Клиент</th>
+                    <th>Адрес</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Курьер</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr data-order-id="{{ order.id }}">
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user_id }}</td>
+                    <td><input type="text" value="{{ order.delivery_address }}" data-field="delivery_address"></td>
+                    <td><input type="number" step="0.01" value="{{ order.total_amount }}" data-field="total_amount"></td>
+                    <td>
+                        <select data-field="status">
+                            <option value="pending" {% if order.status.value == 'pending' %}selected{% endif %}>Ожидает</option>
+                            <option value="cooking" {% if order.status.value == 'cooking' %}selected{% endif %}>Готовится</option>
+                            <option value="ready" {% if order.status.value == 'ready' %}selected{% endif %}>Готов</option>
+                            <option value="delivering" {% if order.status.value == 'delivering' %}selected{% endif %}>Доставляется</option>
+                            <option value="completed" {% if order.status.value == 'completed' %}selected{% endif %}>Завершен</option>
+                            <option value="cancelled" {% if order.status.value == 'cancelled' %}selected{% endif %}>Отменен</option>
+                        </select>
+                    </td>
+                    <td>{{ order.courier_id or '—' }}</td>
+                    <td>{{ order.created_at }}</td>
+                    <td>
+                        <button onclick="updateOrder({{ order.id }})" class="btn btn-small btn-primary">Сохранить</button>
+                        <button onclick="deleteOrder({{ order.id }})" class="btn btn-small btn-danger">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Вкладка Ингредиенты -->
+    <div id="ingredients-tab" class="tab-content">
+        <h2>Управление ингредиентами</h2>
+        <button onclick="showAddIngredientForm()" class="btn btn-primary">Добавить ингредиент</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ingredient in ingredients %}
+                <tr data-ingredient-id="{{ ingredient.id }}">
+                    <td>{{ ingredient.id }}</td>
+                    <td><input type="text" value="{{ ingredient.name }}" data-field="name"></td>
+                    <td>
+                        <button onclick="updateIngredient({{ ingredient.id }})" class="btn btn-small btn-primary">Сохранить</button>
+                        <button onclick="deleteIngredient({{ ingredient.id }})" class="btn btn-small btn-danger">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Вкладка Профиль -->
+    <div id="profile-tab" class="tab-content">
+        <h2>Редактирование профиля</h2>
+        <form id="profileForm" onsubmit="updateProfile(event)">
+            <label>Логин</label>
+            <input type="text" value="{{ current_user.login }}" name="login" readonly>
+            <label>ФИО</label>
+            <input type="text" value="{{ current_user.full_name }}" name="full_name" required>
+            <label>Email</label>
+            <input type="email" value="{{ current_user.email }}" name="email" required>
+            <label>Телефон</label>
+            <input type="text" value="{{ current_user.phone_number }}" name="phone_number" required>
+            <label>Адрес доставки</label>
+            <input type="text" value="{{ current_user.delivery_address or '' }}" name="delivery_address">
+            <label>Новый пароль (оставьте пустым, чтобы не менять)</label>
+            <input type="password" name="password">
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        </form>
+        <div id="successMessage" class="success-message hidden"></div>
+    </div>
+</div>
+
+<!-- Модальное окно справки -->
+<div id="helpModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close" onclick="closeHelp()">&times;</span>
+        <h2>Справка по системе</h2>
+        <div class="help-content">
+            <h3>Роли пользователей:</h3>
+            <ul>
+                <li><strong>Клиент</strong> - может делать заказы</li>
+                <li><strong>Менеджер</strong> - управляет заказами, назначает курьеров</li>
+                <li><strong>Курьер</strong> - доставляет заказы</li>
+                <li><strong>Администратор</strong> - полный доступ к системе</li>
+            </ul>
+            <h3>Статусы заказов:</h3>
+            <ul>
+                <li>pending - Ожидает</li>
+                <li>cooking - Готовится</li>
+                <li>ready - Готов</li>
+                <li>delivering - Доставляется</li>
+                <li>completed - Завершен</li>
+                <li>cancelled - Отменен</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+function showHelp() {
+    document.getElementById('helpModal').classList.remove('hidden');
+}
+
+function closeHelp() {
+    document.getElementById('helpModal').classList.add('hidden');
+}
+
+// Вспомогательная функция для запросов и показа уведомлений
+async function apiRequest(url, options, successMessage) {
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            const detail = data.detail || data.message || `Код ошибки: ${response.status}`;
+            alert('Ошибка: ' + detail);
+            return null;
+        }
+        if (successMessage) {
+            showSuccessMessage(successMessage);
+        }
+        // Некоторые эндпоинты (DELETE) не возвращают тело
+        const text = await response.text();
+        try {
+            return text ? JSON.parse(text) : null;
+        } catch {
+            return null;
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Произошла ошибка: ' + error.message);
+        return null;
+    }
+}
+
+// CRUD операции для блюд
+async function updateDish(id) {
+    const row = document.querySelector(`tr[data-dish-id="${id}"]`);
+    const data = {
+        name: row.querySelector('[data-field="name"]').value,
+        price: parseFloat(row.querySelector('[data-field="price"]').value),
+        weight: parseFloat(row.querySelector('[data-field="weight"]').value),
+        calories: parseFloat(row.querySelector('[data-field="calories"]').value),
+        description: row.querySelector('[data-field="description"]').value || null
+    };
+
+    await apiRequest(`/dishes/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }, 'Блюдо успешно обновлено');
+}
+
+async function deleteDish(id) {
+    if (!confirm('Удалить блюдо?')) return;
+    const result = await apiRequest(`/dishes/${id}`, {
+        method: 'DELETE'
+    }, 'Блюдо успешно удалено');
+    if (result !== null) {
+        const row = document.querySelector(`tr[data-dish-id="${id}"]`);
+        if (row && row.parentNode) {
+            row.parentNode.removeChild(row);
+        }
+    }
+}
+
+// Добавление блюда с выбором ингредиентов
+function showAddDishForm() {
+    let modal = document.getElementById('addDishModal');
+    if (!modal) {
+        alert('Форма добавления блюда не найдена в шаблоне');
+        return;
+    }
+    modal.classList.remove('hidden');
+}
+
+function closeAddDishForm() {
+    const modal = document.getElementById('addDishModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function submitAddDish(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+
+    const ingredients = [];
+    form.querySelectorAll('input[name="ingredient_ids"]:checked').forEach((checkbox) => {
+        ingredients.push(parseInt(checkbox.value, 10));
+    });
+
+    const dishPayload = {
+        name: formData.get('name'),
+        price: parseFloat(formData.get('price') || '0'),
+        weight: parseFloat(formData.get('weight') || '0'),
+        calories: parseFloat(formData.get('calories') || '0'),
+        description: formData.get('description') || null
+    };
+
+    const dish = await apiRequest('/dishes/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dishPayload)
+    }, null);
+
+    if (!dish) return;
+
+    // Привязываем ингредиенты к блюду
+    for (const ingredientId of ingredients) {
+        await apiRequest('/dish-ingredients/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dish_id: dish.id, ingredient_id: ingredientId })
+        }, null);
+    }
+
+    showSuccessMessage('Блюдо успешно добавлено');
+    // Обновляем страницу, чтобы увидеть новое блюдо и связи
+    window.location.reload();
+}
+
+// CRUD для ингредиентов
+async function updateIngredient(id) {
+    const row = document.querySelector(`tr[data-ingredient-id="${id}"]`);
+    const data = {
+        name: row.querySelector('[data-field="name"]').value
+    };
+
+    await apiRequest(`/ingredients/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }, 'Ингредиент успешно обновлён');
+}
+
+async function deleteIngredient(id) {
+    if (!confirm('Удалить ингредиент?')) return;
+    const result = await apiRequest(`/ingredients/${id}`, {
+        method: 'DELETE'
+    }, 'Ингредиент успешно удалён');
+    if (result !== null) {
+        const row = document.querySelector(`tr[data-ingredient-id="${id}"]`);
+        if (row && row.parentNode) {
+            row.parentNode.removeChild(row);
+        }
+    }
+}
+
+function showAddIngredientForm() {
+    const name = prompt('Введите название ингредиента:');
+    if (!name || !name.trim()) return;
+    apiRequest('/ingredients/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() })
+    }, 'Ингредиент успешно добавлен').then(() => window.location.reload());
+}
+
+// CRUD для заказов
+async function updateOrder(id) {
+    const row = document.querySelector(`tr[data-order-id="${id}"]`);
+    const data = {
+        delivery_address: row.querySelector('[data-field="delivery_address"]').value,
+        total_amount: parseFloat(row.querySelector('[data-field="total_amount"]').value),
+        status: row.querySelector('[data-field="status"]').value
+    };
+
+    await apiRequest(`/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }, 'Заказ успешно обновлён');
+}
+
+async function deleteOrder(id) {
+    if (!confirm('Удалить заказ?')) return;
+    const result = await apiRequest(`/orders/${id}`, {
+        method: 'DELETE'
+    }, 'Заказ успешно удалён');
+    if (result !== null) {
+        const row = document.querySelector(`tr[data-order-id="${id}"]`);
+        if (row && row.parentNode) {
+            row.parentNode.removeChild(row);
+        }
+    }
+}
+
+async function updateProfile(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    
+    submitButton.disabled = true;
+    submitButton.textContent = 'Сохранение...';
+    
+    try {
+        const response = await fetch('/account/profile/update', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showSuccessMessage('Профиль успешно обновлен!');
+            submitButton.textContent = originalText;
+        } else {
+            alert('Ошибка: ' + (data.message || 'Не удалось обновить профиль'));
+            submitButton.textContent = originalText;
+        }
+    } catch (error) {
+        alert('Ошибка при сохранении: ' + error.message);
+        submitButton.textContent = originalText;
+    } finally {
+        submitButton.disabled = false;
+    }
+}
+
+function showSuccessMessage(message) {
+    let successDiv = document.getElementById('successMessage');
+    if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.id = 'successMessage';
+        successDiv.className = 'success-message hidden';
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.parentNode.appendChild(successDiv);
+        }
+    }
+    successDiv.textContent = message;
+    successDiv.classList.remove('hidden');
+    successDiv.classList.add('show');
+    
+    setTimeout(() => {
+        successDiv.classList.remove('show');
+        setTimeout(() => {
+            successDiv.classList.add('hidden');
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}
+
